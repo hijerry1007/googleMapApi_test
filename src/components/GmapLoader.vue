@@ -22,9 +22,10 @@ export default {
       google: null,
       map: null,
       mapCenter: null,
+      infoWindow: null,
       query: {
-        radius: 5000,
-        type: "restaurant",
+        radius: 400,
+        type: ["restaurant", "food"],
       },
     };
   },
@@ -36,11 +37,6 @@ export default {
           lng: position.coords.longitude,
         };
         this.$emit("getMapCenter", this.mapCenter);
-        const URL = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${this.mapCenter.lat},${this.mapCenter.lng}&type=${this.query.type}&radius=${this.query.radius}&key=${this.apiKey}`;
-
-        axios.get(URL).then((response) => {
-          this.$emit("handleMarkers", response.data.results);
-        });
       },
       (error) => {
         console.log("Error", error);
@@ -55,13 +51,54 @@ export default {
     });
     this.google = googleMapApi;
     this.initializeMap();
+    this.getMarker();
+    this.addChangeBoundsListener();
+    // this.openAddRestaurant();
   },
   methods: {
     initializeMap() {
       const mapContainer = this.$refs.googleMap;
       this.map = new this.google.maps.Map(mapContainer, this.mapConfig);
+      var self = this;
+      this.map.addListener("click", function (mapsMouseEvent) {
+        let mapCenter = {
+          lat: mapsMouseEvent.latLng.lat(),
+          lng: mapsMouseEvent.latLng.lng(),
+        };
+        self.$emit("getMapCenter", mapCenter);
+        self.map.setCenter(mapsMouseEvent.latLng);
+        self.getMarker();
+      });
+
+      this.infoWindow = new this.google.maps.InfoWindow();
+
+      this.$emit("initialMap", {
+        google: this.google,
+        map: this.map,
+      });
     },
-    getMarkers() {},
+    getMarker() {
+      const URL = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${this.mapConfig.center.lat},${this.mapConfig.center.lng}&type=${this.query.type}&radius=${this.query.radius}&key=${this.apiKey}`;
+
+      axios.get(URL).then((response) => {
+        this.$emit("handleMarkers", response.data.results);
+      });
+    },
+    addChangeBoundsListener() {
+      this.google.maps.event.addListener(
+        this.map,
+        "bounds_changed",
+        (event) => {
+          this.$emit("map-bounds-changed", event);
+        }
+      );
+    },
+    // openAddRestaurant() {
+    //   this.google.maps.event.addListener(this.map, "click", (event) => {
+    //     this.$emit("map-clicked", event);
+    //   });
+    // },
+    // getMarkers() {},
   },
 };
 </script>
