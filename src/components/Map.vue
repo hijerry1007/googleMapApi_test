@@ -1,5 +1,10 @@
 <template>
-  <GmapLoader :mapConfig="mapConfig" apiKey="AIzaSyBw9XXv9GWmY4wA7ItCKR74EfQJeHHdMOk">
+  <GmapLoader
+    :mapConfig="mapConfig"
+    :apiKey="apiKey"
+    @getMapCenter="getMapCenter"
+    @handleMarkers="handleMarkers"
+  >
     <template slot-scope="{google, map}">
       <GoogleMapMarker
         v-for="marker in markers"
@@ -26,20 +31,9 @@ export default {
   },
   data() {
     return {
-      markers: [
-        {
-          id: "a",
-          position: { lat: 3, lng: 101 },
-        },
-        {
-          id: "b",
-          position: { lat: 5, lng: 99 },
-        },
-        {
-          id: "c",
-          position: { lat: 6, lng: 97 },
-        },
-      ],
+      apiKey: "AIzaSyBw9XXv9GWmY4wA7ItCKR74EfQJeHHdMOk",
+      markers: [],
+      mapCenter: null,
     };
   },
   computed: {
@@ -49,8 +43,13 @@ export default {
         center: this.mapCenter,
       };
     },
-    mapCenter() {
-      return this.markers[1].position;
+  },
+  methods: {
+    getMapCenter(mapCenter) {
+      this.mapCenter = mapCenter;
+    },
+    handleMarkers(markers) {
+      this.markers = markers;
     },
   },
 };
