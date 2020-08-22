@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="navigator">
-        <button @click="locator">搜尋目前位置</button>
+        <button>搜尋目前位置</button>
       </div>
     </div>
   </div>
