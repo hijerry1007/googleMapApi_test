@@ -27,6 +27,9 @@ export default {
     });
     this.$emit("addMarkers", newMarker);
   },
+  beforeDestroy() {
+    console.log("BeforeBestroy", this.marker);
+  },
   render() {
     return this.marker;
   },

@@ -9,7 +9,7 @@
 
 <script>
 import GoogleMapsApiLoader from "google-maps-api-loader";
-import axios from "axios";
+// import axios from "axios";
 
 export default {
   name: "GmapLoader",
@@ -24,8 +24,9 @@ export default {
       mapCenter: null,
       infoWindow: null,
       query: {
+        mapCenter: null,
         radius: 400,
-        type: ["restaurant", "food"],
+        type: "restaurant",
       },
     };
   },
@@ -36,7 +37,7 @@ export default {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        this.$emit("getMapCenter", this.mapCenter);
+        this.$store.commit("getMapCenter", this.mapCenter);
       },
       (error) => {
         console.log("Error", error);
@@ -51,7 +52,8 @@ export default {
     });
     this.google = googleMapApi;
     this.initializeMap();
-    this.getMarker();
+    this.getMarker(this.query, this.mapConfig.center);
+
     this.addChangeBoundsListener();
     // this.openAddRestaurant();
   },
@@ -65,9 +67,9 @@ export default {
           lat: mapsMouseEvent.latLng.lat(),
           lng: mapsMouseEvent.latLng.lng(),
         };
-        self.$emit("getMapCenter", mapCenter);
+        self.$store.commit("getMapCenter", mapCenter);
         self.map.setCenter(mapsMouseEvent.latLng);
-        self.getMarker();
+        self.getMarker(self.query, mapCenter);
       });
 
       this.infoWindow = new this.google.maps.InfoWindow();
@@ -77,12 +79,13 @@ export default {
         map: this.map,
       });
     },
-    getMarker() {
-      const URL = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${this.mapConfig.center.lat},${this.mapConfig.center.lng}&type=${this.query.type}&radius=${this.query.radius}&key=${this.apiKey}`;
-
-      axios.get(URL).then((response) => {
-        this.$emit("handleMarkers", response.data.results);
-      });
+    getMarker(request, location) {
+      let query = {
+        ...request,
+        mapCenter: location,
+        apiKey: this.apiKey,
+      };
+      this.$store.dispatch("fetchRestaurant", query);
     },
     addChangeBoundsListener() {
       this.google.maps.event.addListener(
