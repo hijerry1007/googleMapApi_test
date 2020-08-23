@@ -72,7 +72,6 @@ export default {
           lat: mapsMouseEvent.latLng.lat(),
           lng: mapsMouseEvent.latLng.lng(),
         };
-        console.log("clickPosition", mapCenter);
         self.$store.commit("getMapCenter", mapCenter);
         self.getMarker(self.query, mapCenter);
         self.initializeMap();
