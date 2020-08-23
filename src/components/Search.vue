@@ -7,9 +7,6 @@
           <button class="btn btn-outline-secondary" type="button" id="button-addon2">搜尋</button>
         </div>
       </div>
-      <div class="navigator">
-        <button>搜尋目前位置</button>
-      </div>
     </div>
   </div>
 </template>
