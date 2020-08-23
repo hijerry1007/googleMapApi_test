@@ -19,16 +19,11 @@ export default {
   },
   mounted() {
     const { Marker } = this.google.maps;
-    const newMarker = new Marker({
+    new Marker({
       position: this.marker.geometry.location,
-      marker: this.marker,
       map: this.map,
       icon: POINT_MARKER_ICON_CONFIG,
     });
-    this.$emit("addMarkers", newMarker);
-  },
-  beforeDestroy() {
-    console.log("BeforeBestroy", this.marker);
   },
   render() {
     return this.marker;

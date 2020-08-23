@@ -7,12 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     restaurants: null,
-    mapCenter: null,
-  },
-  getters: {
-    getRestaurantList: state => {
-      return state.restaurants
-    }
+    mapCenter: { lat: 25.03746, lng: 121.564558 },
   },
   mutations: {
     getMapCenter(state, location) {
@@ -20,11 +15,12 @@ export default new Vuex.Store({
         ...state.mapCenter,
         ...location
       }
+      console.log("state.mapCenter", state.mapCenter)
     },
     addRestaurant(state, restaurantList) {
       state.restaurants = null;
       state.restaurants = restaurantList;
-    }
+    },
   },
   actions: {
     async fetchRestaurant({ commit }, query) {
@@ -33,7 +29,7 @@ export default new Vuex.Store({
       let restaurantList = data.results
       commit('addRestaurant', restaurantList)
 
-    }
+    },
   },
   modules: {
   }

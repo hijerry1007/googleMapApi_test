@@ -9,19 +9,17 @@
 
 <script>
 import GoogleMapsApiLoader from "google-maps-api-loader";
-// import axios from "axios";
+import { mapSettings } from "../../constants/mapSettings";
 
 export default {
   name: "GmapLoader",
   props: {
-    mapConfig: Object,
     apiKey: String,
   },
   data() {
     return {
       google: null,
       map: null,
-      mapCenter: null,
       infoWindow: null,
       query: {
         mapCenter: null,
@@ -30,14 +28,22 @@ export default {
       },
     };
   },
+  computed: {
+    mapConfig() {
+      return {
+        ...mapSettings,
+        center: this.$store.state.mapCenter,
+      };
+    },
+  },
   created() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        this.mapCenter = {
+        let mapCenter = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        this.$store.commit("getMapCenter", this.mapCenter);
+        this.$store.commit("getMapCenter", mapCenter);
       },
       (error) => {
         console.log("Error", error);
@@ -53,31 +59,30 @@ export default {
     this.google = googleMapApi;
     this.initializeMap();
     this.getMarker(this.query, this.mapConfig.center);
-
-    this.addChangeBoundsListener();
-    // this.openAddRestaurant();
   },
   methods: {
     initializeMap() {
       const mapContainer = this.$refs.googleMap;
       this.map = new this.google.maps.Map(mapContainer, this.mapConfig);
       var self = this;
+
+      //新增監聽
       this.map.addListener("click", function (mapsMouseEvent) {
         let mapCenter = {
           lat: mapsMouseEvent.latLng.lat(),
           lng: mapsMouseEvent.latLng.lng(),
         };
+        console.log("clickPosition", mapCenter);
         self.$store.commit("getMapCenter", mapCenter);
-        self.map.setCenter(mapsMouseEvent.latLng);
         self.getMarker(self.query, mapCenter);
+        self.initializeMap();
+      });
+
+      this.map.addListener("bounds_changed", (event) => {
+        this.$emit("map-bounds-changed", event);
       });
 
       this.infoWindow = new this.google.maps.InfoWindow();
-
-      this.$emit("initialMap", {
-        google: this.google,
-        map: this.map,
-      });
     },
     getMarker(request, location) {
       let query = {
@@ -87,21 +92,6 @@ export default {
       };
       this.$store.dispatch("fetchRestaurant", query);
     },
-    addChangeBoundsListener() {
-      this.google.maps.event.addListener(
-        this.map,
-        "bounds_changed",
-        (event) => {
-          this.$emit("map-bounds-changed", event);
-        }
-      );
-    },
-    // openAddRestaurant() {
-    //   this.google.maps.event.addListener(this.map, "click", (event) => {
-    //     this.$emit("map-clicked", event);
-    //   });
-    // },
-    // getMarkers() {},
   },
 };
 </script>
