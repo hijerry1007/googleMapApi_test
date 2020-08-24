@@ -10,6 +10,7 @@
 <script>
 import GoogleMapsApiLoader from "google-maps-api-loader";
 import { mapSettings } from "../../constants/mapSettings";
+import { mapGetters } from "vuex";
 
 export default {
   name: "GmapLoader",
@@ -26,14 +27,34 @@ export default {
         radius: 400,
         type: "restaurant",
       },
+      mapConfig: {
+        ...mapSettings,
+      },
     };
   },
   computed: {
-    mapConfig() {
-      return {
-        ...mapSettings,
-        center: this.$store.state.mapCenter,
+    ...mapGetters({
+      nameFromStore: "mapCenter",
+    }),
+    mapCenter: {
+      get() {
+        return this.$store.state.mapCenter;
+      },
+      set(newVal) {
+        return newVal;
+      },
+    },
+  },
+  watch: {
+    mapCenter(newVal) {
+      this.mapConfig = {
+        ...this.mapConfig,
+        center: newVal,
       };
+      if (this.map !== null) {
+        this.map.panTo(this.mapConfig.center);
+        this.getMarker(this.query, this.mapConfig.center);
+      }
     },
   },
   created() {
@@ -57,13 +78,14 @@ export default {
       language: "zh-TW",
     });
     this.google = googleMapApi;
+    this.$store.dispatch("handleGoogle", this.google);
     this.initializeMap();
-    this.getMarker(this.query, this.mapConfig.center);
   },
   methods: {
     initializeMap() {
       const mapContainer = this.$refs.googleMap;
       this.map = new this.google.maps.Map(mapContainer, this.mapConfig);
+      this.$store.dispatch("handleMap", this.map);
       var self = this;
 
       //新增監聽
@@ -72,16 +94,10 @@ export default {
           lat: mapsMouseEvent.latLng.lat(),
           lng: mapsMouseEvent.latLng.lng(),
         };
-        self.$store.commit("getMapCenter", mapCenter);
-        self.getMarker(self.query, mapCenter);
-        self.initializeMap();
+        self.$store.dispatch("handleMapCenter", mapCenter);
       });
 
-      this.map.addListener("bounds_changed", (event) => {
-        this.$emit("map-bounds-changed", event);
-      });
-
-      this.infoWindow = new this.google.maps.InfoWindow();
+      // this.infoWindow = new this.google.maps.InfoWindow();
     },
     getMarker(request, location) {
       let query = {

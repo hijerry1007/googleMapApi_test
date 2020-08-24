@@ -17,13 +17,22 @@ export default {
       require: true,
     },
   },
+  data() {
+    return {
+      mapMarker: [],
+    };
+  },
   mounted() {
     const { Marker } = this.google.maps;
-    new Marker({
+    const newMarker = new Marker({
       position: this.marker.geometry.location,
       map: this.map,
       icon: POINT_MARKER_ICON_CONFIG,
     });
+    this.mapMarker.push(newMarker);
+  },
+  beforeDestroy() {
+    this.mapMarker[0].setMap(null);
   },
   render() {
     return this.marker;

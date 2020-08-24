@@ -16,6 +16,7 @@
 <script>
 import GmapLoader from "./GmapLoader";
 import GoogleMapMarker from "./GoogleMapMarker";
+import { mapGetters } from "vuex";
 
 export default {
   name: "Map",
@@ -25,26 +26,41 @@ export default {
   },
   data() {
     return {
-      apiKey: "AIzaSyBw9XXv9GWmY4wA7ItCKR74EfQJeHHdMOk",
+      apiKey: process.env.VUE_APP_apiKey,
       infoWindow: null,
+      markers: [],
     };
   },
   methods: {
-    getMapCenter(mapCenter) {
+    getMarkers(restaurants) {
       this.markers = [];
-      this.$store.state.mapCenter = mapCenter;
+
+      restaurants.forEach((r) => {
+        r = { ...r, id: r.place_id };
+        this.markers.push(r);
+      });
     },
   },
   computed: {
-    markers() {
-      if (this.$store.state.restaurants === null) {
+    ...mapGetters({
+      nameFromStore: "restaurantList",
+    }),
+    restaurantList: {
+      get() {
+        return this.$store.state.restaurants;
+      },
+      set(newVal) {
+        return newVal;
+      },
+    },
+  },
+  watch: {
+    restaurantList(newVal) {
+      if (newVal[0] === undefined) {
         return;
+      } else {
+        this.getMarkers(newVal);
       }
-      let markers = this.$store.state.restaurants.map((rest) => ({
-        id: rest.place_id,
-        ...rest,
-      }));
-      return markers;
     },
   },
 };

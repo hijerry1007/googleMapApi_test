@@ -8,7 +8,26 @@ export default new Vuex.Store({
   state: {
     restaurants: null,
     mapCenter: { lat: 25.03746, lng: 121.564558 },
-    details: null,
+    google: null,
+    map: null,
+    isLoading: false,
+  },
+  getters: {
+    googleApi: (state) => {
+      return state.google
+    },
+    map: (state) => {
+      return state.map
+    },
+    restaurantList: (state) => {
+      return state.restaurants
+    },
+    mapCenter: (state) => {
+      return state.mapCenter
+    },
+    isLoading: (state) => {
+      return state.isLoading
+    }
   },
   mutations: {
     getMapCenter(state, location) {
@@ -21,27 +40,36 @@ export default new Vuex.Store({
       state.restaurants = null;
       state.restaurants = restaurantList;
     },
-    addDetail(state, data) {
-      state.details = {
-        ...state.details,
-        ...data
-      }
-      console.log(state.details)
+    updateGoogle(state, google) {
+      state.google = google;
+    },
+    updateMap(state, map) {
+      state.map = map;
+    },
+    updateIsLoading(state) {
+      state.isLoading = !state.isLoading;
     }
   },
   actions: {
     async fetchRestaurant({ commit }, query) {
+      commit('updateIsLoading')
       const { data } = await restaurantHelper.getNearbyRestaurant(query);
       let restaurantList = []
       for (let i = 0; i < 10; i++) {
         restaurantList.push(data.results[i])
       }
       commit('addRestaurant', restaurantList)
+      commit('updateIsLoading')
     },
-    async getDetail({ commit }, id) {
-      const { data } = await restaurantHelper.getRestaurantDetail(id)
-      commit('addDetail', data.result)
-    }
+    handleGoogle({ commit }, google) {
+      commit('updateGoogle', google)
+    },
+    handleMap({ commit }, map) {
+      commit('updateMap', map)
+    },
+    handleMapCenter({ commit }, mapCenter) {
+      commit('getMapCenter', mapCenter)
+    },
   },
   modules: {
   }
