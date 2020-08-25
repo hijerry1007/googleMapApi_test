@@ -58,18 +58,22 @@ export default {
     },
   },
   created() {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        let mapCenter = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        this.$store.commit("getMapCenter", mapCenter);
-      },
-      (error) => {
-        console.log("Error", error);
-      }
-    );
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          let mapCenter = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          this.$store.commit("getMapCenter", mapCenter);
+        },
+        (error) => {
+          console.log("Error", error);
+        }
+      );
+    } else {
+      alert("您的瀏覽器無法自動定位您所在的位置");
+    }
   },
   async mounted() {
     const googleMapApi = await GoogleMapsApiLoader({

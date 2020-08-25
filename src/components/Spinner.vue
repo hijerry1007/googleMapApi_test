@@ -22,7 +22,7 @@
   width: 1rem;
   height: 1rem;
   margin: 3rem 0.2rem;
-  background: #bd2333;
+  background: #05bb9d;
   border-radius: 50%;
   animation: bouncing-loader 0.6s infinite alternate;
 }

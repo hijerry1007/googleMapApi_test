@@ -3,6 +3,7 @@
     <div class="search">
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Google幫你找" ref="site" v-model="site" />
+        <button type="button" class="btn btn-info ml-2" @click.prevent="search">搜尋</button>
       </div>
     </div>
   </div>
@@ -70,6 +71,27 @@ export default {
           this.$store.dispatch("handleMapCenter", mapCenter);
         }
       });
+    },
+    search() {
+      const geocoder = new this.googleApi.maps.Geocoder();
+      console.log(this.site);
+      geocoder.geocode(
+        {
+          address: this.site,
+          componentRestrictions: { country: "tw" },
+        },
+        (results, status) => {
+          if (status === "OK") {
+            let mapCenter = {
+              lat: results[0].geometry.location.lat(),
+              lng: results[0].geometry.location.lng(),
+            };
+            this.$store.dispatch("handleMapCenter", mapCenter);
+          } else {
+            alert("查無地址");
+          }
+        }
+      );
     },
   },
 };
