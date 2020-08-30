@@ -66,6 +66,7 @@ export default {
             lng: position.coords.longitude,
           };
           this.$store.commit("getMapCenter", mapCenter);
+          this.getMarker(this.query, mapCenter);
         },
         (error) => {
           console.log("Error", error);
@@ -90,18 +91,25 @@ export default {
       const mapContainer = this.$refs.googleMap;
       this.map = new this.google.maps.Map(mapContainer, this.mapConfig);
       this.$store.dispatch("handleMap", this.map);
-      var self = this;
+      // var self = this;
 
       //新增監聽
-      this.map.addListener("click", function (mapsMouseEvent) {
+      this.map.addListener("click", (mapsMouseEvent) => {
         let mapCenter = {
           lat: mapsMouseEvent.latLng.lat(),
           lng: mapsMouseEvent.latLng.lng(),
         };
-        self.$store.dispatch("handleMapCenter", mapCenter);
+        this.$store.dispatch("handleMapCenter", mapCenter);
       });
-
-      // this.infoWindow = new this.google.maps.InfoWindow();
+      this.map.addListener("dragend", () => {
+        window.setTimeout(() => {
+          let mapCenter = {
+            lat: this.map.getCenter().lat(),
+            lng: this.map.getCenter().lng(),
+          };
+          this.getMarker(this.query, mapCenter);
+        }, 1000);
+      });
     },
     getMarker(request, location) {
       let query = {

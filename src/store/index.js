@@ -46,20 +46,21 @@ export default new Vuex.Store({
     updateMap(state, map) {
       state.map = map;
     },
-    updateIsLoading(state) {
+    updateIsLoading(state, bool) {
+      console.log(bool)
       state.isLoading = !state.isLoading;
     }
   },
   actions: {
     async fetchRestaurant({ commit }, query) {
-      commit('updateIsLoading')
+      commit('updateIsLoading', true)
       const { data } = await restaurantHelper.getNearbyRestaurant(query);
       let restaurantList = []
       for (let i = 0; i < 10; i++) {
         restaurantList.push(data.results[i])
       }
       commit('addRestaurant', restaurantList)
-      commit('updateIsLoading')
+      commit('updateIsLoading', false)
     },
     handleGoogle({ commit }, google) {
       commit('updateGoogle', google)
@@ -70,6 +71,9 @@ export default new Vuex.Store({
     handleMapCenter({ commit }, mapCenter) {
       commit('getMapCenter', mapCenter)
     },
+    handleIsLoading({ commit }, bool) {
+      commit('updateIsLoading', bool)
+    }
   },
   modules: {
   }

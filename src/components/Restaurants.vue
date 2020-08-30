@@ -96,6 +96,7 @@ export default {
       }
 
       if (newValue[0] === undefined) {
+        this.$store.dispatch("handleIsLoading", false);
         this.isRestaurantIn = false;
       }
 
